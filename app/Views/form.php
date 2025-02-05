@@ -6,23 +6,23 @@
         <form id="submissionForm">
             <div class="mb-3">
                 <label for="amount" class="form-label">Amount</label>
-                <input type="number" class="form-control" id="amount" name="amount" required pattern="^[0-9]+$">
+                <input type="number" class="form-control" id="amount" name="amount" required>
                 <div class="form-text">Enter the amount in BDT.</div>
             </div>
             <div class="mb-3">
                 <label for="buyer" class="form-label">Buyer's Name</label>
-                <input type="text" class="form-control" id="buyer" name="buyer" maxlength="20" required pattern="^[a-zA-Z0-9\s]+$">
+                <input type="text" class="form-control" id="buyer" name="buyer" maxlength="20" required>
                 <div class="form-text">Enter the buyer's name.</div>
             </div>
             <div class="mb-3">
                 <label for="receipt_id" class="form-label">Receipt ID</label>
-                <input type="text" class="form-control" id="receipt_id" name="receipt_id" required pattern="^[a-zA-Z]+$">
+                <input type="text" class="form-control" id="receipt_id" name="receipt_id" required>
                 <div class="form-text">Enter the receipt ID.</div>
             </div>
             <div class="mb-3">
                 <label for="items" class="form-label">Items</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="items" name="items[]" required pattern="^[a-zA-Z]+$">
+                <div class="input-group" id="itemsContainer">
+                    <input type="text" class="form-control" id="items" name="items[]" required>
                     <span class="input-group-text btn btn-sm btn-danger" id="removeItem"><i class="bi bi-x"></i></span>
                 </div>
                 <div class="form-text">Enter the items purchased.</div>
@@ -30,7 +30,7 @@
             </div>
             <div class="mb-3">
                 <label for="buyer_email" class="form-label">Buyer's Email</label>
-                <input type="email" class="form-control" id="buyer_email" name="buyer_email" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                <input type="email" class="form-control" id="buyer_email" name="buyer_email" required>
                 <div class="form-text">Enter the buyer's email.</div>
             </div>
             <div class="mb-3">
@@ -47,11 +47,6 @@
                 <label for="phone" class="form-label">Phone</label>
                 <input type="tel" class="form-control" id="phone" name="phone" required pattern="^[0-9]+$">
                 <div class="form-text">Enter the phone number.</div>
-                <script>
-                    $("#phone").on("input", function() {
-                        $(this).val("880" + $(this).val());
-                    });
-                </script>
             </div>
             <div class="mb-3">
                 <label for="entry_by" class="form-label">Entry By</label>
@@ -67,26 +62,32 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
     $('#addItem').click(function(e) {
-        e.preventDefault();
-        $('#items').after('<input type="text" class="form-control" name="items[]" required pattern="^[a-zA-Z]+$">');
+        $('#itemsContainer').after(`
+            <div class="input-group mt-2">
+                <input type="text" class="form-control" name="items[]" required>
+                <span class="input-group-text btn btn-sm btn-danger removeItem"><i class="bi bi-x"></i></span>
+            </div>
+        `);
+    });
+
+    $(document).on('click', '.removeItem', function(e) {
+        $(this).parent('.input-group').remove();
     });
 
     $('#submissionForm').submit(function(e) {
         e.preventDefault();
-        if ($('#submissionForm').valid()) {
-            $.ajax({
-                url: "/submit",
-                type: "POST",
-                data: $(this).serialize(),
-                success: function(response) {
-                    alert(response.message);
-                }
-            });
-        }
+        $.ajax({
+            url: "/submit",
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(response) {
+                alert(response.message);
+            }
+        });
     });
 });
 </script>

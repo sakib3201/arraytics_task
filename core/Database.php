@@ -4,10 +4,10 @@ use PDO;
 use PDOException;
 
 class Database {
-    private $host = getenv('DB_HOST') ?: 'localhost';
-    private $user = getenv('DB_USER') ?: 'root';
-    private $pass = getenv('DB_PASS') ?: '';
-    private $dbname = getenv('DB_NAME') ?: 'arraytics_task';
+    private $host = 'localhost';
+    private $user = 'root';
+    private $pass = '';
+    private $dbname = 'arraytics_task';
     private $dbh;
     private $stmt;
 

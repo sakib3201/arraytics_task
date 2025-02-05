@@ -9,6 +9,7 @@ class SubmissionController extends Controller {
     public function index() {
         $this->render('form');
     }
+
     public function submitForm() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             session_start();
@@ -43,8 +44,13 @@ class SubmissionController extends Controller {
     }
 
     public function showSubmissions() {
-        $submission = new Submission();
-        $data = $submission->findAll();
-        $this->render('report', ["submissions" => $data]);
+        $userId = $_GET['id'] ?? null;
+        $startDate = $_GET['start_date'] ?? null;
+        $endDate = $_GET['end_date'] ?? null;
+        
+        $submissionModel = new Submission();
+        $filteredSubmissions = $submissionModel->filterSubmissions($startDate, $endDate, $userId);
+        
+        $this->render('report', ['submissions' => $filteredSubmissions]);
     }
 }

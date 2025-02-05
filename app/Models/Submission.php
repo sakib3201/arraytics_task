@@ -5,8 +5,10 @@ use Core\Database;
 
 class Submission extends Database {
     public function addSubmission($data) {
-        $this->query("INSERT INTO submissions (amount, buyer, receipt_id, items, buyer_email, buyer_ip, note, city, phone, hash_key, entry_at, entry_by)
-                      VALUES (:amount, :buyer, :receipt_id, :items, :buyer_email, :buyer_ip, :note, :city, :phone, :hash_key, :entry_at, :entry_by)");
+        $columns = implode(", ", array_keys($data));
+        $placeholders = ":" . implode(", :", array_keys($data));
+
+        $this->query("INSERT INTO submissions ($columns) VALUES ($placeholders)");
         
         foreach ($data as $key => $value) {
             $this->bind(":$key", $value);
@@ -15,11 +17,31 @@ class Submission extends Database {
         return $this->execute();
     }
     
-    public function getSubmissions($startDate, $endDate, $userId) {
-        $this->query("SELECT * FROM submissions WHERE entry_at BETWEEN :start AND :end AND (entry_by = :userId OR :userId IS NULL)");
-        $this->bind(":start", $startDate);
-        $this->bind(":end", $endDate);
-        $this->bind(":userId", $userId);
+    public function filterSubmissions($startDate = null, $endDate = null, $userId = null) {
+        $query = "SELECT * FROM submissions ";
+        $conditions = [];
+        $params = [];
+        
+        if ($startDate && $endDate) {
+            $conditions[] = "entry_at BETWEEN :start AND :end";
+            $params[':start'] = $startDate;
+            $params[':end'] = $endDate;
+        }
+        
+        if ($userId) {
+            $conditions[] = "entry_by = :userId";
+            $params[':userId'] = $userId;
+        }
+        
+        if (count($conditions)) {
+            $query .= "WHERE " . implode(" AND ", $conditions);
+        }
+        
+        $this->query($query);
+        foreach ($params as $key => $value) {
+            $this->bind($key, $value);
+        }
+
         return $this->resultSet();
     }
 }

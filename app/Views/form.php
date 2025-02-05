@@ -25,9 +25,11 @@
             <div class="mb-3">
                 <label for="items" class="form-label">Items</label>
                 <div class="input-group" id="itemsContainer">
-                    <input type="text" class="form-control" id="items" name="items[]" placeholder="Enter item name" required pattern="^[a-zA-Z0-9\s]+$">
+                    <input type="text" class="form-control" id="items" name="items[]" placeholder="Enter item name" required pattern="^[a-zA-Z\s]+$">
                     <span class="input-group-text btn btn-sm btn-danger" id="removeItem"><i class="bi bi-x"></i></span>
                 </div>
+                <div class="form-text text-danger" id="items-error"></div>
+                <div class="form-text"><i class="bi bi-info-circle"></i> Must be only text</div>
                 <button type="button" class="btn btn-sm btn-primary mt-2" id="addItem"><i class="bi bi-plus"></i> Add Item</button>
             </div>
             <div class="mb-3">
@@ -68,6 +70,7 @@
             </div>
         </form>
         <div class="alert alert-danger mt-3 d-none" id="form-error" role="alert"></div>
+        <div class="alert alert-success mt-3 d-none" id="form-submission-success" role="alert"></div>
     </div>
 </div>
 
@@ -77,7 +80,7 @@ $(document).ready(function() {
     $('#addItem').click(function(e) {
         $('#itemsContainer').after(`
             <div class="input-group mt-2">
-                <input type="text" class="form-control" name="items[]" placeholder="Enter item name" required pattern="^[a-zA-Z0-9\s]+$">
+                <input type="text" class="form-control" name="items[]" placeholder="Enter item name" required pattern="^[a-zA-Z\s]+$">
                 <span class="input-group-text btn btn-sm btn-danger removeItem"><i class="bi bi-x"></i></span>
             </div>
         `);
@@ -92,7 +95,7 @@ $(document).ready(function() {
         var formData = $(this).serializeArray();
         
         // ensure phone has +880 added before being sent to backend
-        formData.push({name: 'phone', value: '+880' + formData.find(el => el.name === 'phone').value});
+        formData.push({name: 'phone', value: '880' + formData.find(el => el.name === 'phone').value});
 
         $.ajax({
             url: "/submit",
@@ -101,24 +104,87 @@ $(document).ready(function() {
             success: function(response) {
                 var response = JSON.parse(response);
 
+                if (response.status == "success") {
+                    $('#form-submission-success').removeClass('d-none').html(response.message);
+                }
+
                 if (response.status == "error") {
                     $('#form-error').removeClass('d-none').html(response.message);
                     $.each(response.errors, function(key, value) {
                         $('#' + key + '-error').html(value);
                         $('#' + key).addClass('is-invalid');
                     });
-                } else {
-                    alert(response.message);
                 }
             },
             error:function(response) {
-                alert(response.error);
+                alert("Error occurred submitting form");
             }
         });
     });
+
+    $('#submissionForm input').on('focusout', function() {
+        var $this = $(this);
+        var value = $this.val();
+        var name = $this.attr('name').replace(/[\[\]]/g, '');
+
+        if (value == '') {
+            $('#' + name + '-error').html('This field is required');
+            $this.addClass('is-invalid');
+        } else {
+            $('#' + name + '-error').html('');
+            $this.removeClass('is-invalid');
+        }
+    });
+
+    $('#submissionForm input[name="phone"]').on('focusout', function() {
+        var value = $(this).val();
+
+        if (!/^[0-9]+$/.test(value)) {
+            $('#phone-error').html('Must be only numbers.');
+            $(this).addClass('is-invalid');
+        } else {
+            $('#phone-error').html('');
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    $('#submissionForm input[name="city"]').on('focusout', function() {
+        var value = $(this).val();
+
+        if (!/^[a-zA-Z\s]+$/.test(value)) {
+            $('#city-error').html('Must be only text and spaces.');
+            $(this).addClass('is-invalid');
+        } else {
+            $('#city-error').html('');
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    $(document).on('focusout', '#submissionForm input[name="receipt_id"]', function() {
+        var value = $(this).val();
+
+        if (!/^[a-zA-Z\s]+$/.test(value)) {
+            $('#receipt_id-error').html('Must be only text and spaces.');
+            $(this).addClass('is-invalid');
+        } else {
+            $('#receipt_id-error').html('');
+            $(this).removeClass('is-invalid');
+        }
+    });
+
+    $(document).on('focusout', '#submissionForm input[name="items[]"]', function() {
+        var value = $(this).val();
+
+        if (!/^[a-zA-Z\s]+$/.test(value)) {
+            $('#items-error').html('Must be only text and spaces.');
+            $(this).addClass('is-invalid');
+        } else {
+            $('#items-error').html('');
+            $(this).removeClass('is-invalid');
+        }
+    });
 });
 </script>
-<?php
-    require_once 'layout/footer.php';
 
+<?= require_once 'layout/footer.php' ?>
 

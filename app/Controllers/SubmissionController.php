@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\Submission;
 use Core\Controller;
+use Exception;
+use RuntimeException;
 
 class SubmissionController extends Controller {
     public function index() {
@@ -12,14 +14,14 @@ class SubmissionController extends Controller {
 
     public function submitForm() {
         if (isset($_COOKIE['submitted'])) {
-            echo json_encode(["status" => "error", "message" => "You can only submit once every 24 hours."]);
+            echo json_encode(["status" => "error", "message" => "You can only submit once every 24 hours. Triggered from backend"]);
             exit;
         }
 
         $errors = $this->validateRequest($_POST);
         
         if (!empty($errors)) {
-            echo json_encode(["status" => "error", "message" => "Validation errors.", "errors" => $errors]);
+            echo json_encode(["status" => "error", "message" => "Validation errors:". implode("<br>",$errors), ]);
             exit;
         }
 
@@ -35,12 +37,13 @@ class SubmissionController extends Controller {
             "city" => $_POST['city'],
             "phone" => $_POST['phone'], // 880 is prepended via JS
             "entry_at" => date("Y-m-d"),
-            "entry_by" => $_POST['entry_by']
+            "entry_by" => $_POST['entry_by'],
+            "hash_key" => generateHashKey($_POST['receipt_id']),
         ];
 
         if ($submission->addSubmission($data)) {
             setcookie("submitted", "true", time() + 86400, "/");
-            echo json_encode(["status" => "success", "message" => "Form submitted successfully."]);
+            echo json_encode(["status" => "success", "message" => "Form submitted successfully. You need to wait 24 hours before you can submit again."]);
         } else {
             echo json_encode(["status" => "error", "message" => "Submission failed."]);
         }
@@ -103,9 +106,13 @@ class SubmissionController extends Controller {
         $startDate = $_GET['start_date'] ?? null;
         $endDate = $_GET['end_date'] ?? null;
         
-        $submissionModel = new Submission();
-        $filteredSubmissions = $submissionModel->filterSubmissions($startDate, $endDate, $userId);
-        
+        try {
+            $submission = new Submission();
+            $filteredSubmissions = $submission->filterSubmissions($startDate, $endDate, $userId);
+        } catch (Exception $e) {
+            throw new RuntimeException('Failed to retrieve submissions data', 0, $e);
+        }
+
         $this->render('report', ['submissions' => $filteredSubmissions]);
     }
 }

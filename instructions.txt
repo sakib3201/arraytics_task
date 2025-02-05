@@ -1,0 +1,6 @@
+# How to run this program
+
+1. Copy the codebase into a folder named arraytics_task
+2. Setup your database configuration in the `config/config.php` file. Or, import the sample database from "database/sample_db/arraytics_task.sql" as a database named "arraytics_task".
+3. go to public folder and run "php -S localhost:5000" to run using php's server or set document root to "public/index.php" if you're using different server.
+4. Ensure your PC/Server is connected to the internet (as frontend libraries like bootstrap and jquery is provided via CDN)

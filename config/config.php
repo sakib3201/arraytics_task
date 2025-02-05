@@ -1,12 +1,14 @@
 <?php
+/**
+ * Global configuration values
+ */
+return [
+    'database' => [
+        'name' => 'arraytics_task',
+        'host' => 'localhost',
+        'user' => 'root',
+        'password' => '',
+    ],
 
-namespace Config;
-
-class Config {
-    const DB_HOST = 'localhost';
-    const DB_USER = 'root';
-    const DB_PASS = '';
-    const DB_NAME = 'submission_db';
-
-    const SALT = 'your_random_salt';
-}
+    'secure_salt' => 'RandomSecureSalt',
+];

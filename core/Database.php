@@ -4,10 +4,10 @@ use PDO;
 use PDOException;
 
 class Database {
-    private $host = 'localhost';
-    private $user = 'root';
-    private $pass = '';
-    private $dbname = 'arraytics_task';
+    private $host;
+    private $user;
+    private $pass;
+    private $dbname;
     private $dbh;
     private $stmt;
 
@@ -22,6 +22,11 @@ class Database {
      * an error message.
      */
     public function __construct() {
+        $this->host = config('database.host');
+        $this->user = config('database.user');
+        $this->pass = config('database.password');
+        $this->dbname = config('database.name');
+
         try {
             $dsn = "mysql:host=$this->host;dbname=$this->dbname;charset=utf8mb4";
             $this->dbh = new PDO($dsn, $this->user, $this->pass, [
@@ -76,7 +81,6 @@ class Database {
         // Execute the prepared statement
         $this->stmt->execute();
 
-        // Return the current instance for method chaining
         return $this;
     }
 

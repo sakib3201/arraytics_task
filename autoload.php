@@ -27,3 +27,7 @@ spl_autoload_register(function ($class) {
     }
 });
 
+// Require helper functions.
+require_once __DIR__ . '/app/Helpers/Helper.php';
+  
+

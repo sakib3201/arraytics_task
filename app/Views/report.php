@@ -1,12 +1,11 @@
 <?php require_once 'layout/header.php' ?>
 
-<h2 class="text-center"><u>Submissions</u></h2>
 <div class="d-flex justify-content-center">
-    <div class="table-wrapper mt-2" style="width: 90%; min-height: 90vh">
+    <div class="table-responsive mt-2" style="width: 90%; min-height: 90vh">
         <form action="/report" method="get" class="d-flex">
             <div class="input-group me-2">
                 <span class="input-group-text">ID</span>
-                <input type="text" class="form-control" name="id" placeholder="Enter ID">
+                <input type="text" class="form-control" name="id" placeholder="Enter User ID">
             </div>
             <div class="input-group me-2">
                 <span class="input-group-text">Start Date</span>
@@ -21,7 +20,8 @@
         <table class="table mt-2">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>No.</th>
+                    <th>Entry By (User ID)</th>
                     <th>Amount</th>
                     <th>Buyer</th>
                     <th>Receipt ID</th>
@@ -31,19 +31,19 @@
                     <th>City</th>
                     <th>Phone</th>
                     <th>IP </th>
-                    <th>Entry By</th>
                     <th>Submission Date</th>
                 </tr>
             </thead>
             <tbody>
             <?php if (empty($submissions)): ?>
                 <tr>
-                    <td colspan="10" class="text-center">No submissions found</td>
+                    <td colspan="12" class="text-center">No submissions found</td>
                 </tr>
             <?php else: ?>
-                <?php foreach ($submissions as $submission): ?>
+                <?php $serialNumber = 1; foreach ($submissions as $submission): ?>
                     <tr>
-                        <td><?= $submission['id'] ?></td>
+                        <td><?= $serialNumber++ ?></td>
+                        <td><?= $submission['entry_by'] ?></td>
                         <td><?= $submission['amount'] ?></td>
                         <td><?= $submission['buyer'] ?></td>
                         <td><?= $submission['receipt_id'] ?></td>
@@ -53,7 +53,6 @@
                         <td><?= $submission['city'] ?></td>
                         <td><?= $submission['phone'] ?></td>
                         <td><?= $submission['buyer_ip'] ?></td>
-                        <td><?= $submission['entry_by'] ?></td>
                         <td><?= date('d-m-Y', strtotime($submission['entry_at'])) ?></td>
                     </tr>
                 <?php endforeach; ?>
